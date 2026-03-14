@@ -1,0 +1,169 @@
+{
+    "instructions": [
+        {
+            "name": "ADR",
+            "opcode": 0,
+            "operandFormat": "RLabel"
+        },
+        {
+            "name": "MOV",
+            "opcode": 1,
+            "operandFormat": "RR"
+        },
+        {
+            "name": "STR",
+            "opcode": 2,
+            "operandFormat": "RR"
+        },
+        {
+            "name": "STRB",
+            "opcode": 3,
+            "operandFormat": "RR"
+        },
+        {
+            "name": "LDR",
+            "opcode": 4,
+            "operandFormat": "RR"
+        },
+        {
+            "name": "LDRB",
+            "opcode": 5,
+            "operandFormat": "RR"
+        },
+        {
+            "name": "BX",
+            "opcode": 6,
+            "operandFormat": "R"
+        },
+        {
+            "name": "B",
+            "opcode": 7,
+            "operandFormat": "Label"
+        },
+        {
+            "name": "BNE",
+            "opcode": 8,
+            "operandFormat": "Label"
+        },
+        {
+            "name": "BGT",
+            "opcode": 9,
+            "operandFormat": "Label"
+        },
+        {
+            "name": "BLT",
+            "opcode": 10,
+            "operandFormat": "Label"
+        },
+        {
+            "name": "BEQ",
+            "opcode": 11,
+            "operandFormat": "Label"
+        },
+        {
+            "name": "CMP",
+            "opcode": 12,
+            "operandFormat": "RR"
+        },
+        {
+            "name": "AND",
+            "opcode": 13,
+            "operandFormat": "RR"
+        },
+        {
+            "name": "ORR",
+            "opcode": 14,
+            "operandFormat": "RR"
+        },
+        {
+            "name": "EOR",
+            "opcode": 15,
+            "operandFormat": "RR"
+        },
+        {
+            "name": "ADD",
+            "opcode": 16,
+            "operandFormat": "RRR"
+        },
+        {
+            "name": "SUB",
+            "opcode": 17,
+            "operandFormat": "RRR"
+        },
+        {
+            "name": "MUL",
+            "opcode": 18,
+            "operandFormat": "RRR"
+        },
+        {
+            "name": "DIV",
+            "opcode": 19,
+            "operandFormat": "RRR"
+        },
+        {
+            "name": "SWI",
+            "opcode": 20,
+            "operandFormat": "I"
+        },
+        {
+            "name": "BL",
+            "opcode": 21,
+            "operandFormat": "RLabel"
+        },
+        {
+            "name": "MVI",
+            "opcode": 22,
+            "operandFormat": "RI"
+        }
+    ],
+    "registers": [
+        {
+            "name": "R0",
+            "code": 0
+        },
+        {
+            "name": "R1",
+            "code": 1
+        },
+        {
+            "name": "R2",
+            "code": 2
+        },
+        {
+            "name": "R3",
+            "code": 3
+        },
+        {
+            "name": "R4",
+            "code": 4
+        },
+        {
+            "name": "R5",
+            "code": 5
+        },
+        {
+            "name": "SP",
+            "code": 6
+        },
+        {
+            "name": "FP",
+            "code": 7
+        },
+        {
+            "name": "SL",
+            "code": 8
+        },
+        {
+            "name": "Z",
+            "code": 9
+        },
+        {
+            "name": "SB",
+            "code": 10
+        },
+        {
+            "name": "PC",
+            "code": 11
+        }
+    ]
+}

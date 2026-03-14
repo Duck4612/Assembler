@@ -1,0 +1,86 @@
+Overview:
+The Assembler has six main phases in assembling a .asm file into a .osx byte file:
+	1) Reading the .asm file
+	2) Tokenizing
+	3) Parsing
+	4) Label Addressing
+	5) Byte Encoding
+	6) Writing the .osx file
+
+There are two sections in an .asm file that are valid for this assembler, namely directives and instructions.
+Each instruction is allocated 6 bytes, begins with a 1 byte opcode, and has between 1 to 5 bytes used for operands.
+
+
+The first 12 bytes of each .osx byte file are 3 integers, byteSize, PC, and loaderAddress:
+	byteSize is the size in bytes of the non-header portion of the file
+	PC is the address of the first instruction
+	loaderAddress is a value that can be specified in assembly and used to determine physical address loading
+
+CLI:
+
+	Arg Syntax | Meaning
+
+        <arg>        Denotes arg is a required argument
+	[arg]	     Denotes arg is an optional argument
+	{arg}        Indicates that {arg} should be replaced with whatever the text inside { } is describing itself to be
+	-arg	     Denotes an option flag
+
+	Command Line Argument  | Description
+	
+	<{inputFileName}.asm>    The .asm file to assemble
+	[{loaderAddress}]        LoaderAddress is one of the three integers in the .osx byte file header, as described above (note that whether specified or not, loaderAddress will be in the .osx file header, defaulting to 0)
+	[-v]                     Verbose mode option flag
+	[-o <{outputFileName}>]  Optional arg to specify the output file name (default otherwise is {inputFileName}.osx)
+	
+Instructions:
+
+	Encoding | Opcode | Operands | Description
+
+        0	   ADR 	    R1 Label   Load the address of Label into R1
+        1          MOV      R1 R2      Move the value of R2 into R1
+        2          STR      R1 R2      Store the value of R1 into the memory address in R2
+        3          STRB     R1 R2      Store the first byte of R1 into the memory address in R2
+        4          LDR      R1 R2      Load int (4 bytes) from the memory address in R2 into R1
+        5          LDRB     R1 R2      Load byte from the memory address in R2 into R1
+        6          BX       R1         Branch to the address in R1
+        7          B        Label      Branch to the designated label (put label address into PC)
+        8          BNE      Label      Branch to the designated label if comparison register Z != 0
+        9          BGT      Label      Branch to the designated label if comparison register Z > 0
+        10         BLT      Label      Branch to the designated label if comparison register Z < 0
+        11         BEQ      Label      Branch to the designated label if comparison register Z == 0
+        12         CMP      R1 R2      Set Z to R1 - R2 
+        13         AND      R1 R2      Set Z to R1 AND R2 (logical or bitwise)
+        14         ORR      R1 R2      Set Z to R1 OR R2 (logical or bitwise)
+        15         EOR      R1 R2      Set Z to R1 XOR R2 (logical or bitwise)
+        16         ADD      R1 R2 R3   Set R1 to R2 + R3
+        17         SUB      R1 R2 R3   Set R1 to R2 - R3
+        18         MUL      R1 R2 R3   Set R1 to R2 * R3
+        19         DIV      R1 R2 R3   Set R1 to R2 / R3
+        20         SWI      I          Software Interrupt with code I to be handled by the kernel
+        21         BL       Label      Branch to the designated label after setting R5 to return address (current PC + 6)
+        22         MVI      R1 I       Load value of I into R1
+
+Directives:
+
+	Directive | Operands | Description
+	.WORD	    [I]        Allocate 4 bytes of space, optionally initialized with the value of I
+	.BYTE       c          Allocate 1 byte of space, optionally initialized with the char 'c'
+	.SPACE      I          Allocate bytes of space equal to the value of I
+	.INPUT                 Allocate 4 bytes of space, optionally initialized with a value of user input during assembly
+
+Registers:
+
+	Encoding | Register | Description
+
+	0	   R0	      General purpose Register
+	1	   R1	      General purpose Register
+	2	   R2	      General purpose Register
+	3	   R3	      General purpose Register
+	4	   R4	      General purpose Register
+	5	   R5	      General purpose Register
+	6	   SP	      Stack Pointer Register
+	7	   FP	      Frame Pointer Register
+	8	   SL	      Stack Limit Register
+	9	   Z	      Flag Register (determines branching)
+	10	   SB	      Stack Base Register
+	11	   PC	      Program Counter (points at next instruction address)

@@ -1,0 +1,7 @@
+{
+  "InputFile": "myAsmbTest.asm",
+  "OutputFile": "outputTest.osx",
+  "LoaderAddress": 40,
+  "Verbose": true,
+  "Debug": true
+}

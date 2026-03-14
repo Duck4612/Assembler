@@ -3,9 +3,7 @@ namespace Assembler
 {
     public static class Register
     {
-        public static readonly Dictionary<string, byte> Codes = new(StringComparer.OrdinalIgnoreCase);
-
-        private static readonly Dictionary<string, byte> Default = new(StringComparer.OrdinalIgnoreCase)
+        public static readonly Dictionary<string, byte> Codes = new(StringComparer.OrdinalIgnoreCase)
         {
             ["R0"] = 0,
             ["R1"] = 1,
@@ -20,14 +18,5 @@ namespace Assembler
             ["SB"] = 10,
             ["PC"] = 11
         };
-
-        public static void SetCodesToDefault()
-        {
-            Codes.Clear();
-            foreach (var kvp in Default)
-            {
-                Codes[kvp.Key] = kvp.Value;
-            }
-        }
     }
 }

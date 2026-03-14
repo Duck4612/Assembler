@@ -1,50 +1,48 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 namespace Assembler
 {
     public static class ISAConfigLoader
     {
+        private static JsonSerializerOptions jsonOptions = new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } };
         public static void Load(string path)
         {
-            if (File.Exists(path))
-            {
-                var json = File.ReadAllText(path);
-                var config = JsonSerializer.Deserialize<ISAConfig>(json);
+            if (!File.Exists(path))
+                return;
 
-                ApplyInstructions(config);
-                ApplyRegisters(config);
-            }
+            var json = File.ReadAllText(path);
+            var config = JsonSerializer.Deserialize<ISAConfig>(json, jsonOptions);
 
-            else
-            {
-                InstructionSet.SetSpecsToDefault();
-                Register.SetCodesToDefault();
-            }
+            if (config == null)
+                return;
+
+            ApplyInstructions(config);
+            ApplyRegisters(config);
         }
 
 
-        private static void ApplyInstructions(ISAConfig? config)
+        private static void ApplyInstructions(ISAConfig config)
         {
-            if (config?.Instructions == null)
+            if (config.Instructions == null)
             {
-                InstructionSet.SetSpecsToDefault();
                 return;
             }
 
+            InstructionSet.Specs.Clear();
             foreach (var inst in config.Instructions)
             {
-                InstructionSet.Specs[inst.Name] =
-                    new InstructionSpec(inst.Opcode, inst.OperandFormat);
+                InstructionSet.Specs[inst.Name] = new InstructionSpec(inst.Opcode, inst.Operands);
             }
         }
 
-        private static void ApplyRegisters(ISAConfig? config)
+        private static void ApplyRegisters(ISAConfig config)
         {
-            if (config?.Registers == null)
+            if (config.Registers == null)
             {
-                Register.SetCodesToDefault();
                 return;
             }
 
+            Register.Codes.Clear();
             foreach (var reg in config.Registers)
             {
                 Register.Codes[reg.Name] = reg.Code;

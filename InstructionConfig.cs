@@ -4,6 +4,6 @@
     {
         public string Name { get; set; } = "";
         public byte Opcode { get; set; }
-        public OperandFormat OperandFormat { get; set; }
+        public Token.Types[] Operands { get; set; } = [];
     }
 }

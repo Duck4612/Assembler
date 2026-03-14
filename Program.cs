@@ -6,15 +6,16 @@ namespace Assembler
     {
         private static readonly string ParamFileName = "AsmOptions.json";
         private static readonly string ISAFileName = "isa.json";
+        private static readonly string Help = "Usage: <input.asm> <loaderAddress> [-v] [-o <output.osx>]";
         static void Main(string[] args)
         {
-            if (args.Length == 0 || args.Length == 1)
+            if (args.Contains("-h"))
             {
-                Console.WriteLine("Usage: <input.asm> <loaderAddress> [-v] [-o <output.osx>]");
+                Console.WriteLine(Help);
                 return;
             }
-
             var options = GetAssemblerOptions(args);
+            
             Console.WriteLine($"Beginning assembly: Input file - {options.InputFile} | Output file - {options.OutputFile} | Loader Address - {options.LoaderAddress} ");
             List<ListingEntry> listing = [];
 
@@ -31,10 +32,10 @@ namespace Assembler
 
             if (options.Verbose)
             {
-                VerbosePrinter.PrintListings(listing, options.Debug);
+                VerbosePrinter.PrintListings(listing, args.Contains("--d"));
             }
 
-            if (options.Debug)
+            if (args.Contains("--d"))
             {
                 VerbosePrinter.PrintSymbolTable(symbolTable);
             }
@@ -43,11 +44,10 @@ namespace Assembler
         public static AssemblerOptions ParamFileOptions(string path)
         {
             if (!File.Exists(path))
-                return DefaultOptions.Create();
+                return new AssemblerOptions();
 
             var json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<AssemblerOptions>(json)
-                   ?? DefaultOptions.Create();
+            return JsonSerializer.Deserialize<AssemblerOptions>(json) ?? new AssemblerOptions();
         } 
 
         public static AssemblerOptions GetAssemblerOptions(string[] args)
@@ -57,9 +57,8 @@ namespace Assembler
             {
                 InputFile = args.FirstOrDefault(arg => arg.EndsWith(".asm")),
                 OutputFile = args.Contains("-o") ? Path.ChangeExtension(args[Array.IndexOf(args, "-o") + 1], ".osx") : Path.ChangeExtension(args.FirstOrDefault(arg => arg.EndsWith(".asm")), ".osx"),
-                LoaderAddress = int.TryParse(args[1], out int address) ? address : -1,
-                Verbose = args.Contains("-v"),
-                Debug = args.Contains("--d")
+                LoaderAddress = args.Length > 1 ? (int.TryParse(args[1], out int address) ? address : -1) : -1,
+                Verbose = args.Contains("-v")
             };
 
             var options = new AssemblerOptions
@@ -70,8 +69,7 @@ namespace Assembler
                         config.LoaderAddress != -1 ? config.LoaderAddress :
                         throw new Exception("Assembly requires a target base loading address"),
 
-                Verbose = cli.Verbose || config.Verbose,
-                Debug = cli.Debug || config.Debug
+                Verbose = cli.Verbose || ((cli.InputFile != null) && config.Verbose),
             };
 
             File.WriteAllText(ParamFileName, JsonSerializer.Serialize(options, new JsonSerializerOptions { WriteIndented = true }));

@@ -1,0 +1,11 @@
+ByteTest .BYTE f
+Bytes .STRING testing
+
+
+MVI R1 234
+MVI R2 13
+LOOP SWI 1 ;print R1
+SUB R1 R1 R2
+CMP R1 R2
+BGT LOOP
+SWI 10

@@ -2,7 +2,6 @@
   "profiles": {
     "Assembler": {
       "commandName": "Project",
-      "commandLineArgs": "myAsmbTest.asm 40 -v --debug -o outputTest",
       "workingDirectory": "C:\\Users\\James\\CS\\6510\\Assembler"
     }
   }

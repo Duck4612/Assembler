@@ -6,7 +6,6 @@
         public string? OutputFile { get; set; }
         public int LoaderAddress { get; set; }
 
-        public bool Verbose { get; set; }
-        public bool Debug { get; set; }
+        public bool Verbose { get; set; } = false;
     }
 }

@@ -1,38 +1,73 @@
 Overview:
-The Assembler has six main phases in assembling a .asm file into a .osx byte file:
+The assembler converts a .asm source file into a .osx bytecode file through six phases:
 	1) Reading the .asm file
+	   The source file is read line by line.
+
 	2) Tokenizing
+	   Each line is broken into tokens such as opcodes, registers, numbers, and labels.
+
 	3) Parsing
-	4) Label Addressing
-	5) Byte Encoding
+	   Tokens are validated and organized into instructions or directives.
+
+	4) Label Addressing (First Pass)
+	   Label locations are recorded so that branch targets can be resolved.
+
+	5) Byte Encoding (Second Pass)
+	   Instructions and directives are converted into byte representations.
+
 	6) Writing the .osx file
+	   The header and encoded bytes are written to the output file.
 
-There are two sections in an .asm file that are valid for this assembler, namely directives and instructions.
-Each instruction is allocated 6 bytes, begins with a 1 byte opcode, and has between 1 to 5 bytes used for operands.
+OSX File Header (3 integers, 12 bytes total)
 
-
-The first 12 bytes of each .osx byte file are 3 integers, byteSize, PC, and loaderAddress:
-	byteSize is the size in bytes of the non-header portion of the file
-	PC is the address of the first instruction
-	loaderAddress is a value that can be specified in assembly and used to determine physical address loading
+	Name           | Description
+	byteSize         Size in bytes of program data (excluding header)
+	PC               Address of the first instruction
+	loaderAddress    Suggested memory load location (specified at time of assembly)
 
 CLI:
 
-	Arg Syntax | Meaning
+	The assembler will utilize any commandline arguments with full priority, following which the assembler will use (if existing and valid) a file called "AsmOptions.json" in order to obtain arguments.
+	The intent is to allow easier repeated use of the assembler in cases of assembling the same .asm file multiple times
 
-        <arg>        Denotes arg is a required argument
-	[arg]	     Denotes arg is an optional argument
-	{arg}        Indicates that {arg} should be replaced with whatever the text inside { } is describing itself to be
-	-arg	     Denotes an option flag
+	Argument Syntax | Meaning
+
+        <arg>             Denotes arg is a required argument
+	[arg]	          Denotes arg is an optional argument
+	{arg}             Indicates that {arg} should be replaced with whatever the text inside { } is describing itself to be
+	-arg	          Denotes an option flag
 
 	Command Line Argument  | Description
 	
-	<{inputFileName}.asm>    The .asm file to assemble
+	<{inputFile}.asm>    The .asm file to assemble
 	[{loaderAddress}]        LoaderAddress is one of the three integers in the .osx byte file header, as described above (note that whether specified or not, loaderAddress will be in the .osx file header, defaulting to 0)
 	[-v]                     Verbose mode option flag
-	[-o <{outputFileName}>]  Optional arg to specify the output file name (default otherwise is {inputFileName}.osx)
+	[-o <{outputFile}>]  Optional arg to specify the output file name (default otherwise is {inputFile}.osx)
+
+	Usage: Assembler <inputFile.asm> [loaderAddress] [-v] [-o <outputFile>]
 	
+
+Directives:
+
+	Directives are identified by the assembler using '.', and only occupy bytes according to what the specific directive indicates.
+	All directives must come before instructions.
+
+	Directive | Operands | Description
+	.WORD	    [I]        Allocate 4 bytes optionally initialized with the value of I
+	.BYTE       [Label]    Allocate 1 byte of space, optionally initialized with the first char of Label
+	.SPACE      <I>        Allocate I bytes of space
+	.STRING     <Label>    Allocate 1 byte of space for each char of Label
+	.INPUT                 Allocate 4 bytes optionally initialized with user input entered during assembly time.
+
 Instructions:
+
+	Each instruction occupies exactly 6 bytes.
+
+	Byte Layout:
+	1 byte   Opcode
+	1–5 bytes Operands (registers encoded using 1 byte, immediates/addresses encoded with 4 bytes)
+
+	Unused operand bytes are padded with zero.
 
 	Encoding | Opcode | Operands | Description
 
@@ -49,9 +84,9 @@ Instructions:
         10         BLT      Label      Branch to the designated label if comparison register Z < 0
         11         BEQ      Label      Branch to the designated label if comparison register Z == 0
         12         CMP      R1 R2      Set Z to R1 - R2 
-        13         AND      R1 R2      Set Z to R1 AND R2 (logical or bitwise)
-        14         ORR      R1 R2      Set Z to R1 OR R2 (logical or bitwise)
-        15         EOR      R1 R2      Set Z to R1 XOR R2 (logical or bitwise)
+        13         AND      R1 R2      Set Z to R1 & R2 (bitwise AND)
+        14         ORR      R1 R2      Set Z to R1 | R2 (bitwise OR)
+        15         EOR      R1 R2      Set Z to R1 ^ R2 (bitwise XOR)
         16         ADD      R1 R2 R3   Set R1 to R2 + R3
         17         SUB      R1 R2 R3   Set R1 to R2 - R3
         18         MUL      R1 R2 R3   Set R1 to R2 * R3
@@ -59,14 +94,6 @@ Instructions:
         20         SWI      I          Software Interrupt with code I to be handled by the kernel
         21         BL       Label      Branch to the designated label after setting R5 to return address (current PC + 6)
         22         MVI      R1 I       Load value of I into R1
-
-Directives:
-
-	Directive | Operands | Description
-	.WORD	    [I]        Allocate 4 bytes of space, optionally initialized with the value of I
-	.BYTE       c          Allocate 1 byte of space, optionally initialized with the char 'c'
-	.SPACE      I          Allocate bytes of space equal to the value of I
-	.INPUT                 Allocate 4 bytes of space, optionally initialized with a value of user input during assembly
 
 Registers:
 
@@ -81,6 +108,59 @@ Registers:
 	6	   SP	      Stack Pointer Register
 	7	   FP	      Frame Pointer Register
 	8	   SL	      Stack Limit Register
-	9	   Z	      Flag Register (determines branching)
+	9	   Z	      Flag Register used for conditional branches
 	10	   SB	      Stack Base Register
 	11	   PC	      Program Counter (points at next instruction address)
+
+Labels:
+
+	Labels are used to identify addresses for branching purposes and for use of space/values allocated by directives.
+	Labels may be used on the same line or on the line preceding what they are labeling. In either case they will be tied to the opcode/directive following it.
+	
+	Both of the following are valid syntax for label usage:
+	
+	Label Opcode Operands
+	
+		or
+
+	Label
+		Opcode Operands
+
+Comments:
+
+	Comments are identified by ';', and will cause everything on a given line to be ignored after the ;
+
+Customization:
+
+	If a valid "isa.json" file is present, it overrides the default instruction and/or register definitions. Note that at this time custom instruction sets must still utilize at most 6 bytes per instruction.
+	Valid operands are "Register", "Label", and "Number", with "Label" and "Number" indicating 4 bytes for an address or immediate respectively.
+	Valid format for defining the default instructions/registers as above is as follows:
+
+	{
+		"instructions": [
+    		{
+    		    "name": "ADR",
+    		    "opcode": 0,
+       	 	    "operands": ["Register", "Label"]
+    		},
+
+			...
+
+    		{
+    		    "name": "MVI",
+    		    "opcode": 22,
+    		    "operands": ["Register", "Number"]
+    		}],    
+		"registers": [
+        	{
+        	    "name": "R0",
+        	    "code": 0
+        	},
+
+			...
+
+        	{
+        	    "name": "PC",
+        	    "code": 11
+        	}]
+	}

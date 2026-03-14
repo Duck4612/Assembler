@@ -1,8 +1,8 @@
 ﻿namespace Assembler
 {
-    public record InstructionSpec(byte Opcode, OperandFormat OperandFormat)
+    public record InstructionSpec(byte Opcode, Token.Types[] Operands)
     {
         public byte Opcode { get; } = Opcode;
-        public OperandFormat OperandFormat { get; } = OperandFormat;
+        public Token.Types[] Operands { get; } = Operands;
     }
 }

@@ -3,117 +3,117 @@
         {
             "name": "ADR",
             "opcode": 0,
-            "operandFormat": "RLabel"
+            "operands": ["Register", "Label"]
         },
         {
             "name": "MOV",
             "opcode": 1,
-            "operandFormat": "RR"
+            "operands": ["Register", "Register"]
         },
         {
             "name": "STR",
             "opcode": 2,
-            "operandFormat": "RR"
+            "operands": ["Register", "Register"]
         },
         {
             "name": "STRB",
             "opcode": 3,
-            "operandFormat": "RR"
+            "operands": ["Register", "Register"]
         },
         {
             "name": "LDR",
             "opcode": 4,
-            "operandFormat": "RR"
+            "operands": ["Register", "Register"]
         },
         {
             "name": "LDRB",
             "opcode": 5,
-            "operandFormat": "RR"
+            "operands": ["Register", "Register"]
         },
         {
             "name": "BX",
             "opcode": 6,
-            "operandFormat": "R"
+            "operands": ["Register"]
         },
         {
             "name": "B",
             "opcode": 7,
-            "operandFormat": "Label"
+            "operands": ["Label"]
         },
         {
             "name": "BNE",
             "opcode": 8,
-            "operandFormat": "Label"
+            "operands": ["Label"]
         },
         {
             "name": "BGT",
             "opcode": 9,
-            "operandFormat": "Label"
+            "operands": ["Label"]
         },
         {
             "name": "BLT",
             "opcode": 10,
-            "operandFormat": "Label"
+            "operands": ["Label"]
         },
         {
             "name": "BEQ",
             "opcode": 11,
-            "operandFormat": "Label"
+            "operands": ["Label"]
         },
         {
             "name": "CMP",
             "opcode": 12,
-            "operandFormat": "RR"
+            "operands": ["Register", "Register"]
         },
         {
             "name": "AND",
             "opcode": 13,
-            "operandFormat": "RR"
+            "operands": ["Register", "Register"]
         },
         {
             "name": "ORR",
             "opcode": 14,
-            "operandFormat": "RR"
+            "operands": ["Register", "Register"]
         },
         {
             "name": "EOR",
             "opcode": 15,
-            "operandFormat": "RR"
+            "operands": ["Register", "Register"]
         },
         {
             "name": "ADD",
             "opcode": 16,
-            "operandFormat": "RRR"
+            "operands": ["Register", "Register", "Register"]
         },
         {
             "name": "SUB",
             "opcode": 17,
-            "operandFormat": "RRR"
+            "operands": ["Register", "Register", "Register"]
         },
         {
             "name": "MUL",
             "opcode": 18,
-            "operandFormat": "RRR"
+            "operands": ["Register", "Register", "Register"]
         },
         {
             "name": "DIV",
             "opcode": 19,
-            "operandFormat": "RRR"
+            "operands": ["Register", "Register", "Register"]
         },
         {
             "name": "SWI",
             "opcode": 20,
-            "operandFormat": "I"
+            "operands": ["Number"]
         },
         {
             "name": "BL",
             "opcode": 21,
-            "operandFormat": "RLabel"
+            "operands": ["Register", "Label"]
         },
         {
             "name": "MVI",
             "opcode": 22,
-            "operandFormat": "RI"
+            "operands": ["Register", "Number"]
         }
     ],
     "registers": [

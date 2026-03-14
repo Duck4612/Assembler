@@ -23,23 +23,23 @@
 					var token = lineTokens[tokenIndex];
                     if (InstructionSet.Specs.ContainsKey(token))
 					{
-                        lineTokenList.Add(new Token(TokenType.OPCode, token, lineNumber));
+                        lineTokenList.Add(new Token(Token.Types.OPCode, token, lineNumber));
 					}
 					else if (Register.Codes.ContainsKey(token))
 					{
-                        lineTokenList.Add(new Token(TokenType.Register, token, lineNumber));
+                        lineTokenList.Add(new Token(Token.Types.Register, token, lineNumber));
 					}
                     else if (token.StartsWith(directiveChar) && Directive.Codes.Contains(token[1..]))
                     {
-                        lineTokenList.Add(new Token(TokenType.Directive, token[1..], lineNumber));
+                        lineTokenList.Add(new Token(Token.Types.Directive, token[1..], lineNumber));
                     }
 					else if (int.TryParse(token, out _))
 					{
-                        lineTokenList.Add(new Token(TokenType.Number, token, lineNumber));
+                        lineTokenList.Add(new Token(Token.Types.Number, token, lineNumber));
                     }
                     else
 					{
-                        lineTokenList.Add(new Token(TokenType.Label, token, lineNumber));
+                        lineTokenList.Add(new Token(Token.Types.Label, token, lineNumber));
 					}
                 }
 

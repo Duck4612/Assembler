@@ -1,4 +1,6 @@
-﻿namespace Assembler
+﻿using System.Globalization;
+
+namespace Assembler
 {
     public class Assembler
     {
@@ -33,6 +35,9 @@
                         break;
                     case "INPUT":
                         labelAddress += 4;
+                        break;
+                    case "STRING":
+                        labelAddress += statement.operands[0].Text.Length;
                         break;
                     case null:
                         if (statement.opCode == null)
@@ -69,10 +74,15 @@
                         byteEncoding = statement.operands.Length > 0 ? BitConverter.GetBytes(int.Parse(statement.operands[0].Text)): new byte[4];
                         break;
                     case "BYTE":
-                        byteEncoding = statement.operands.Length > 0 ? [byte.Parse(statement.operands[0].Text)] : new byte[1];
+                        byteEncoding = statement.operands.Length > 0 ? [(byte)(statement.operands[0].Text[0])] : new byte[1];
                         break;
                     case "SPACE":
-                        byteEncoding = statement.operands.Length > 0 ? new byte[int.Parse(statement.operands[0].Text)] : throw new Exception($"Directive {statement.directive} requires size to allocate");
+                        byteEncoding = statement.operands.Length > 0 ? new byte[int.Parse(statement.operands[0].Text)] 
+                            : throw new Exception($"Directive {statement.directive} requires size to allocate");
+                        break;
+                    case "STRING":
+                        byteEncoding = statement.operands.Length > 0? [.. statement.operands[0].Text.Select(c => (byte)c)]
+                            : throw new Exception($"Directive {statement.directive} requires string to allocate");
                         break;
                     case "INPUT":
                         int input;
@@ -90,7 +100,7 @@
                             userInput = Console.ReadLine();
                         }
                         byteEncoding = BitConverter.GetBytes(input);
-                        statement.operands = [.. statement.operands, new Token(TokenType.Number, $"{input}", 0)];
+                        statement.operands = [.. statement.operands, new Token(Token.Types.Number, $"{input}", 0)];
                         break;
                 }
 
@@ -118,25 +128,29 @@
         private static byte[] EncodeInstruction(string opCode, Token[] operands, Dictionary<string, int> symbols)
         {
             var spec = InstructionSet.Specs[opCode];
-            var operandSpecs = OperandSet.Specs[spec.OperandFormat];
             byte[] bytes = new byte[6];
 
-            bytes[0] = spec.Opcode;
+            int encodingIndex = 0;
+            bytes[encodingIndex] = spec.Opcode;
+            encodingIndex += Token.Sizes[Token.Types.OPCode];
 
-            for (int i = 0; i < operandSpecs.Length; i++)
+            for (int i = 0; i < spec.Operands.Length; i++)
             {
-                var operandSpec = operandSpecs[i];
                 var token = operands[i];
+                var tokenSize = Token.Sizes[token.Type]; 
 
-                byte[] valueBytes = operandSpec.Type switch
+                byte[] valueBytes = spec.Operands[i] switch
                 {
-                    TokenType.Register => [Register.Codes[token.Text]],
-                    TokenType.Number => BitConverter.GetBytes(int.Parse(token.Text)),
-                    TokenType.Label => symbols.ContainsKey(token.Text) ? BitConverter.GetBytes(symbols[token.Text]) : throw new Exception($"Cannot find address of {token.Text}"),
+                    Token.Types.Register => [Register.Codes[token.Text]],
+                    Token.Types.Number => BitConverter.GetBytes(int.Parse(token.Text)),
+                    Token.Types.Label => symbols.TryGetValue(token.Text, out int address) ? BitConverter.GetBytes(address) : throw new Exception($"Cannot find address of {token.Text}"),
                     _ => throw new Exception($"Unsupported operand type {token.Type}")
                 };
 
-                Array.Copy(valueBytes, 0, bytes, operandSpec.Offset, operandSpec.Size);
+                Array.Copy(valueBytes, 0, bytes, encodingIndex, tokenSize);
+                encodingIndex += tokenSize;
+                if (encodingIndex > InstructionSize)
+                    throw new Exception($"Instruction encoding overflow: {encodingIndex} exceeds instruction size ({InstructionSize})");
             }
 
             return bytes;
